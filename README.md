@@ -1,12 +1,15 @@
 # REE Discovery
 This paper studies two questions about rule discovery. Can we characterize the usefulness of rules using quantitative criteria? How can we discover rules using those criteria? As a testbed, we consider entity enhancing rules (REEs), which subsume common association rules and data quality rules as special cases. We characterize REEs using a bi-criteria model, with both objective measures such as support and confidence, and subjective measures for the user’s needs; we learn the subjective measure and the weight vectors via active learning. Based on the bi-criteria model, we develop a top-𝑘 algorithm to discover top-ranked REEs, and an any-time algorithm for successive discovery via lazy evaluation. We parallelize these algorithms such that they guarantee to reduce runtime when more processors are used.
 
+
 For more details, see our paper:
 
-Wenfei Fan, Ziyan Han, Yaoshu Wang, and Min Xie. [*Discovering Top-k Rules using Subjective and Objective Criteria*](https://philo-vanguard.github.io/files/papers/Rule-Discovery-Top-k-SIGMOD23.pdf). In SIGMOD (2023). ACM.
-<br><br>
+> Wenfei Fan, Ziyan Han, Yaoshu Wang, and Min Xie. [*Discovering Top-k Rules using Subjective and Objective Criteria*](https://philo-vanguard.github.io/files/papers/Rule-Discovery-Top-k-SIGMOD23.pdf). In SIGMOD (2023). ACM.
 
-> Please note that, the original code in the **master** branch, intended to replicate the experimental results reported in our paper, contained several bugs. We have addressed these issues and implemented the necessary fixes in the **latest** branch.
+<br>
+
+
+&#x1F308; Please note that, the original code in the 'master' branch, intended to replicate the experimental results reported in our paper, contained several bugs. We have addressed these issues and implemented the necessary fixes in the 'latest' branch.
 
 
 The source codes mainly include two parts:
