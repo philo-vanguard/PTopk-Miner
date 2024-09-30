@@ -3,7 +3,7 @@ This paper studies two questions about rule discovery. Can we characterize the u
 
 For more details, see our paper:
 
-Wenfei Fan, Ziyan Han, Yaoshu Wang, and Min Xie. *Discovering Top-k Rules using Subjective and Objective Criteria*. In SIGMOD (2023). ACM. [(Download)](https://philo-vanguard.github.io/files/papers/Rule-Discovery-Top-k-SIGMOD23.pdf)
+Wenfei Fan, Ziyan Han, Yaoshu Wang, and Min Xie. [*Discovering Top-k Rules using Subjective and Objective Criteria*](https://philo-vanguard.github.io/files/papers/Rule-Discovery-Top-k-SIGMOD23.pdf). In SIGMOD (2023). ACM.
 
 
 The source codes mainly include two parts:
