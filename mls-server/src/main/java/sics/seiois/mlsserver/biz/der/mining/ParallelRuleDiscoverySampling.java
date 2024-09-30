@@ -59,7 +59,7 @@ public class ParallelRuleDiscoverySampling {
 
     // max number of partition of Lattice
     public static int NUM_LATTICE = 200;
-    public static int MAX_CURRENT_PREDICTES = 7;
+    public int MAX_CURRENT_PREDICTES = 5; // the maximum |X| size in rule
 
     public static int MAX_WORK_UNITS_PARTITION = 20;
 
@@ -121,6 +121,10 @@ public class ParallelRuleDiscoverySampling {
     private HashMap<IBitSet, HashMap<Predicate, Double>> confidence_last_round;
     private HashMap<IBitSet, HashMap<Predicate, Double>> confidence_current_round;
 
+    private int index_null_string;
+    private int index_null_double;
+    private int index_null_long;
+
     // set the DQNMLP
     void loadDQNModel(MLPFilterClassifier dqnmlp) throws IOException {
         if (dqnmlp == null) {
@@ -152,15 +156,16 @@ public class ParallelRuleDiscoverySampling {
 //        } else if (data_name.contains("Property")) {
 //            data_name = "property";
 //        }
-        loadAllPredicates(data_name);
+        loadAllPredicates(data_name, "allPredicatesFilePath!!!");
     }
 
     // load all Predicates from file
 //    private HashMap<Integer, Predicate> index2predicates;
-    public void loadAllPredicates(String data_name) throws IOException {
+    public void loadAllPredicates(String data_name, String allPredicatesFile) throws IOException {
 //        this.index2predicates = new HashMap<>();
         FileSystem hdfs = FileSystem.get(new Configuration());
-        String inputTxtPath = PredicateConfig.MLS_TMP_HOME + "allPredicates/" + data_name + "_predicates.txt";
+//        String inputTxtPath = PredicateConfig.MLS_TMP_HOME + "interestingness/" + data_name + "_topk/" + data_name + "_predicates.txt";
+        String inputTxtPath = allPredicatesFile;
         FSDataInputStream inputTxt = hdfs.open(new Path(inputTxtPath));
         BufferedInputStream bis = new BufferedInputStream(inputTxt);
         InputStreamReader sReader = new InputStreamReader(bis, "UTF-8");
@@ -171,7 +176,20 @@ public class ParallelRuleDiscoverySampling {
         while ((line = bReader.readLine()) != null) {
 //            Predicate p = PredicateBuilder.parsePredicateString(this.input, line);
 //            this.index2predicates.put(k, p);
-            this.predicateDQNHashIDs.put(line, k);
+            if (this.allPredicates.get(0).toString().contains("==")) {
+                if (!line.contains("==")) {
+                    this.predicateDQNHashIDs.put(line.replace("=", "=="), k);
+                } else {
+                    this.predicateDQNHashIDs.put(line, k);
+                }
+            } else {
+                if (line.contains("==")) {
+                    this.predicateDQNHashIDs.put(line.replace("==", "="), k);
+                } else {
+                    this.predicateDQNHashIDs.put(line, k);
+                }
+            }
+            logger.info("#### read predicate line: {}", line);
             k++;
         }
     }
@@ -203,7 +221,7 @@ public class ParallelRuleDiscoverySampling {
     }
 
     // load Rule Interestingness model NN version
-    void loadInterestingnessModel(String tokenToIDFile, String interestingnessModelFile, String filterRegressionFile,
+    void loadInterestingnessModel(String tokenToIDFile, String interestingnessModelFile, String filterRegressionFile, String allPredicatesFile,
                                   FileSystem hdfs) {
         try {
             if (this.predicateDQNHashIDs == null) {
@@ -221,11 +239,13 @@ public class ParallelRuleDiscoverySampling {
                 if (data_name == null) {
                     data_name = this.allPredicates.get(0).getTableName();
                 }
-                this.loadAllPredicates(data_name);
+                this.loadAllPredicates(data_name, allPredicatesFile);
             }
         } catch (IOException e) {
 
         }
+        logger.info("#### predicateDQNHashIDs: {}", this.predicateDQNHashIDs);
+
         // reconstruct the interestingness object
         this.interestingness = new Interestingness(tokenToIDFile, interestingnessModelFile,
                 filterRegressionFile, this.allPredicates, this.allCount, hdfs, this.predicateDQNHashIDs);
@@ -398,15 +418,40 @@ public class ParallelRuleDiscoverySampling {
                                          float confidence, long maxOneRelationNum, Input input, long allCount,
                                          float w_1, float w_2, float w_3, float w_4, float w_5, int ifPrune,
                                          int if_conf_filter, float conf_filter_thr, int if_cluster_workunits, int filter_enum_number,
-                                         String topKOption, String tokenToIDFile, String interestingnessModelFile, String filterRegressionFile,
-                                         FileSystem hdfs, boolean useConfHeuristic) throws IOException {
+                                         String topKOption, String tokenToIDFile, String interestingnessModelFile, String filterRegressionFile, String allPredicatesFile,
+                                         FileSystem hdfs, boolean useConfHeuristic,
+                                         int index_null_string, int index_null_double, int index_null_long,
+                                         int MAX_X_LENGTH) throws IOException {
         this(predicates, K, maxTupleNum, support,
                 confidence, maxOneRelationNum, input, allCount,
                 w_1, w_2, w_3, w_4, w_5, ifPrune, if_conf_filter, conf_filter_thr, if_cluster_workunits, filter_enum_number, useConfHeuristic);
 
+        this.index_null_string = index_null_string;
+        this.index_null_double = index_null_double;
+        this.index_null_long = index_null_long;
+        logger.info("index_null_string: {}", index_null_string);
+        logger.info("index_null_double: {}", index_null_double);
+        logger.info("index_null_long: {}", index_null_long);
+
+        this.MAX_CURRENT_PREDICTES = MAX_X_LENGTH;
+        logger.info("MAX_X_LENGTH: {}", MAX_CURRENT_PREDICTES);
+
         // topKOption is the indicator to switch different ablation study
         this.topKOption = topKOption;
-        this.loadInterestingnessModel(tokenToIDFile, interestingnessModelFile, filterRegressionFile, hdfs);
+//        if (!this.topKOption.equals("noFiltering")) {
+        this.loadInterestingnessModel(tokenToIDFile, interestingnessModelFile, filterRegressionFile, allPredicatesFile, hdfs);
+//        }
+
+        // remove predicates that not exist in the input allPredicates.txt file
+//        ArrayList<Predicate> rm_preds = new ArrayList<>();
+//        for (Predicate p : this.allPredicates) {
+//            if (!this.predicateDQNHashIDs.containsKey(p.toString().trim())) {
+//                rm_preds.add(p);
+//            }
+//        }
+//        for (Predicate p : rm_preds) {
+//            this.allPredicates.remove(p);
+//        }
     }
 
     public ParallelRuleDiscoverySampling(List<Predicate> predicates, int K, int maxTupleNum, long support,
@@ -424,11 +469,19 @@ public class ParallelRuleDiscoverySampling {
         this.loadInterestingnessModel(tokenToIDFile, interestingnessModelFile, filterRegressionFile, predicateHashIDsFile);
     }
 
-    private ArrayList<Predicate> applicationDrivenSelection(List<Predicate> predicates) {
+    private ArrayList<Predicate> applicationDrivenSelection(List<Predicate> all_predicates) {
         int whole_num_nonCons = 0;
         int whole_num_cons = 0;
-        for (Predicate p : predicates) {
-            if (p.isConstant()) {
+        List<Predicate> predicates = new ArrayList<>();
+
+        for (Predicate rhs : all_predicates) {
+            // when maxTupleNum <= 2, we do not consider t1 constant RHS, since it is redundant due to the symmetry!
+            if (this.maxTupleNum <= 2 && rhs.isConstant() && rhs.getIndex1() == 1) {
+                continue;
+            }
+            predicates.add(rhs);
+
+            if (rhs.isConstant()) {
                 whole_num_cons++;
             } else {
                 whole_num_nonCons++;
@@ -628,7 +681,18 @@ public class ParallelRuleDiscoverySampling {
 //            if (!p.isConstant() && p.getOperand1().getColumnLight().getName().contains("scheduled_service")) {
 //                continue;
 //            }
+//            if (p.isConstant() && p.getOperand1().getColumnLight().getName().contains("type") && p.getConstant().contains("small_airport")) {
+//                applicationRHSs.add(p);
+//                break;
+//            }
+            // for case study
+//            if (p.getOperand1().getColumnLight().getName().equals("Emergency_Service")) {
+//                applicationRHSs.add(p);
+//            }
             applicationRHSs.add(p);
+//            if (p.isConstant() && p.getOperand1().getColumnLight().getName().contains("h_index")) { // for case study, aminer_merged_categorical
+//                applicationRHSs.add(p);
+//            }
         }
 
         // 9. test NCVoter
@@ -744,8 +808,12 @@ public class ParallelRuleDiscoverySampling {
             if (!p.isConstant()) {
                 continue;
             }
-            if (p.getOperand1().getColumnLight().getUniqueConstantNumber() <= this.filter_enum_number ||
-                p.getOperand2().getColumnLight().getUniqueConstantNumber() <= this.filter_enum_number) {
+//            if (p.getOperand1().getColumnLight().getUniqueConstantNumber() <= this.filter_enum_number ||
+//                p.getOperand2().getColumnLight().getUniqueConstantNumber() <= this.filter_enum_number) {
+//                removePredicates.add(p);
+//            }
+            if (p.getOperand1().getColumnLight().getUniqueConstantNumberWithoutOnlyOneExistence() <= this.filter_enum_number ||
+                    p.getOperand2().getColumnLight().getUniqueConstantNumberWithoutOnlyOneExistence() <= this.filter_enum_number) {
                 removePredicates.add(p);
             }
         }
@@ -756,14 +824,33 @@ public class ParallelRuleDiscoverySampling {
         }
     }
 
+    private void removeNonEnumPredicates(List<Predicate> allPredicates) {
+        ArrayList<Predicate> removePredicates = new ArrayList<>();
+        for (Predicate p : allPredicates) {
+            // remove predicates with attribute such as id
+            if (p.getOperand1().getColumnLight().getUniqueConstantNumber() > this.allCount * 0.8 ||
+                    p.getOperand2().getColumnLight().getUniqueConstantNumber() > this.allCount * 0.8) {
+                removePredicates.add(p);
+            }
+        }
+        logger.info("#### Filter non-enum Constant Predicates size: {}", removePredicates.size());
+        for (Predicate p : removePredicates) {
+            allPredicates.remove(p);
+        }
+    }
+
     private void removeEnumPredicates(List<Predicate> allPredicates) {
         ArrayList<Predicate> removePredicates = new ArrayList<>();
         for (Predicate p : allPredicates) {
             if (!p.isConstant()) {
                 continue;
             }
-            if (p.getOperand1().getColumnLight().getUniqueConstantNumber() <= this.filter_enum_number ||
-                p.getOperand2().getColumnLight().getUniqueConstantNumber() <= this.filter_enum_number) {
+//            if (p.getOperand1().getColumnLight().getUniqueConstantNumber() <= this.filter_enum_number ||
+//                p.getOperand2().getColumnLight().getUniqueConstantNumber() <= this.filter_enum_number) {
+//                removePredicates.add(p);
+//            }
+            if (p.getOperand1().getColumnLight().getUniqueConstantNumberWithoutOnlyOneExistence() <= this.filter_enum_number ||
+                    p.getOperand2().getColumnLight().getUniqueConstantNumberWithoutOnlyOneExistence() <= this.filter_enum_number) {
                 removePredicates.add(p);
             }
         }
@@ -820,20 +907,91 @@ public class ParallelRuleDiscoverySampling {
 
         this.prepareAllPredicatesMultiTuples();
 
-        List<Predicate> tmp_allPredicates = new ArrayList<>();
+        ArrayList<Predicate> rm_preds = new ArrayList<>();
         for (Predicate p : this.allPredicates) {
-            tmp_allPredicates.add(p);
+//                if (p.isConstant() && p.getOperand1().getColumnLight().getName().contains("paper_affiliations") && p.getConstant().contains(".")) { // remove "t.paper_affiliations = ."
+//                    rm_preds.add(p);
+//                }
+//                if (p.getOperand1().getColumnLight().getName().equals("author2paper_id") || p.getOperand1().getColumnLight().getName().equals("author_id") ||
+//                        p.getOperand1().getColumnLight().getName().equals("paper_id")) { // for case study, aminer_merged_categorical
+//                    rm_preds.add(p);
+//                }
+            // for case study, aminer_merged_categorical
+            /*
+            if (!p.isConstant()) {
+                if (p.getOperand1().getColumnLight().getName().contains("published_papers__") || p.getOperand1().getColumnLight().getName().contains("citations__") ||
+                        p.getOperand1().getColumnLight().getName().contains("h_index") || p.getOperand1().getColumnLight().getName().contains("h_index_interval") || p.getOperand1().getColumnLight().getName().contains("p_index__") ||
+                        p.getOperand1().getColumnLight().getName().contains("p_index_with_unequal_a_index__") || p.getOperand1().getColumnLight().getName().contains("author_position__") ||
+                        p.getOperand1().getColumnLight().getName().contains("year__")) {
+                    rm_preds.add(p);
+                }
+            }
+            else {
+                if (p.getOperand1().getColumnLight().getName().equals("published_papers") || p.getOperand1().getColumnLight().getName().equals("citations") ||
+                        p.getOperand1().getColumnLight().getName().equals("h_index") || p.getOperand1().getColumnLight().getName().equals("p_index") ||
+                        p.getOperand1().getColumnLight().getName().equals("p_index_with_unequal_a_index") || p.getOperand1().getColumnLight().getName().equals("author_position") ||
+                        p.getOperand1().getColumnLight().getName().equals("year")) {
+                    rm_preds.add(p);
+                    continue;
+                }
+                if (p.getOperand1().getColumnLight().getName().equals("published_papers__3") || p.getOperand1().getColumnLight().getName().equals("published_papers__10") || p.getOperand1().getColumnLight().getName().equals("published_papers__100")) {
+                    rm_preds.add(p);
+                    continue;
+                }
+                if (p.getOperand1().getColumnLight().getName().equals("citations__0") || p.getOperand1().getColumnLight().getName().equals("citations__5") || p.getOperand1().getColumnLight().getName().equals("citations__50")) {
+                    rm_preds.add(p);
+                    continue;
+                }
+                if (p.getOperand1().getColumnLight().getName().equals("p_index__05") || p.getOperand1().getColumnLight().getName().equals("p_index__1") || p.getOperand1().getColumnLight().getName().equals("p_index__50")) {
+                    rm_preds.add(p);
+                    continue;
+                }
+                if (p.getOperand1().getColumnLight().getName().equals("p_index__0") && p.getConstant().equals("0")) {
+                    rm_preds.add(p);
+                    continue;
+                }
+                if (p.getOperand1().getColumnLight().getName().equals("p_index_with_unequal_a_index__05") || p.getOperand1().getColumnLight().getName().equals("p_index_with_unequal_a_index__1") ||
+                        p.getOperand1().getColumnLight().getName().equals("p_index_with_unequal_a_index__50")) {
+                    rm_preds.add(p);
+                    continue;
+                }
+                if (p.getOperand1().getColumnLight().getName().equals("p_index_with_unequal_a_index__0") && p.getConstant().equals("0")) {
+                    rm_preds.add(p);
+                    continue;
+                }
+                if (p.getOperand1().getColumnLight().getName().equals("author_position__5") || p.getOperand1().getColumnLight().getName().equals("author_position__10")) {
+                    rm_preds.add(p);
+                    continue;
+                }
+                if (p.getOperand1().getColumnLight().getName().equals("author_position__1") && p.getConstant().equals("0")) {
+                    rm_preds.add(p);
+                    continue;
+                }
+                if (p.getOperand1().getColumnLight().getName().equals("author_position__3") && p.getConstant().equals("0")) {
+                    rm_preds.add(p);
+                    continue;
+                }
+                if (p.getOperand1().getColumnLight().getName().equals("year__1950") || p.getOperand1().getColumnLight().getName().equals("year__1960") || p.getOperand1().getColumnLight().getName().equals("year__1970") ||
+                        p.getOperand1().getColumnLight().getName().equals("year__1980") || p.getOperand1().getColumnLight().getName().equals("year__1990") || p.getOperand1().getColumnLight().getName().equals("year__2000")) {
+                    rm_preds.add(p);
+                }
+            }
+            */
         }
-        removeEnumPredicates(tmp_allPredicates);
-        ArrayList<Predicate> applicationRHSs = this.applicationDrivenSelection(tmp_allPredicates);
+        for (Predicate p : rm_preds) {
+            this.allPredicates.remove(p);
+        }
+
+        ArrayList<Predicate> applicationRHSs = this.applicationDrivenSelection(this.allPredicates);
+
+        this.removeNonEnumPredicates(this.allPredicates);
+
+        this.removeEnumPredicates(this.allPredicates, this.allExistPredicates);
 
         // remove predicates that are irrelevant to RHSs
         if (this.maxTupleNum <= 2) {
             filterIrrelevantPredicates(applicationRHSs, this.allPredicates);
         }
-
-        // remove constant predicates of enumeration type
-        removeEnumPredicates(this.allPredicates, this.allExistPredicates);
 
         logger.info("Parallel Mining with Predicates size {} and Predicates {}", this.allPredicates.size(), this.allPredicates);
         int cpsize = 0;
@@ -1397,6 +1555,7 @@ public class ParallelRuleDiscoverySampling {
             return null;
         }
 
+        long now = System.currentTimeMillis();
         // parallel expand lattice vertices of next level
         Lattice nextLattice = sc.parallelize(workUnitLattices, workUnitLattices.size()).map(task -> {
 
@@ -1420,7 +1579,6 @@ public class ParallelRuleDiscoverySampling {
             return latticeWorker;
 
         }).aggregate(null, new ILatticeAggFunction(), new ILatticeAggFunction());
-        long now = System.currentTimeMillis();
 
 //        Lattice nextLattice = workUnitLattices.stream().parallel().map(task -> {
 //
@@ -1449,6 +1607,8 @@ public class ParallelRuleDiscoverySampling {
         // final pruning
         nextLattice.removeInvalidLatticeAndRHSs(lattice);
 
+        logger.info(">>>> next Lattice size: {}", nextLattice.size());
+
         return nextLattice;
     }
 
@@ -1470,7 +1630,8 @@ public class ParallelRuleDiscoverySampling {
     public List<Message> run(ArrayList<WorkUnit> workUnits, String taskId,
                              JavaSparkContext sc, HashMap<String, Long> tupleNumberRelations, Broadcast<PredicateSetAssist> bcpsAssist) {
         BroadcastObj broadcastObj = new BroadcastObj(this.maxTupleNum, this.inputLight, this.support, this.confidence,
-                this.maxOneRelationNum, tupleNumberRelations);
+                this.maxOneRelationNum, tupleNumberRelations,
+                this.index_null_string, this.index_null_double, this.index_null_long);
         // broadcast data
         // ... left for future
 
@@ -1588,8 +1749,8 @@ public class ParallelRuleDiscoverySampling {
                             }
                             List<Predicate> rhs = validConsRuleMap.get(lhs);
 
-                            for (Predicate p : rhs) {
-                                if (unit.getRHSs().containsPredicate(p)) {
+                            if (rhs != null) {
+                                for (Predicate p : rhs) {
                                     unit.getRHSs().remove(p);
                                     logger.info(">>>> test cut: {}", p);
                                 }
@@ -1635,7 +1796,8 @@ public class ParallelRuleDiscoverySampling {
 //            logger.info(">>>Will do multiTuplesRuleMining! {} | {}", currentList, rhsList);
             MultiTuplesRuleMiningOpt multiTuplesRuleMining = new MultiTuplesRuleMiningOpt(bobj.getMax_num_tuples(),
                     bobj.getInputLight(), bobj.getSupport(), bobj.getConfidence(), bobj.getMaxOneRelationNum(),
-                    unitSet.getAllCount(), bobj.getTupleNumberRelations());
+                    unitSet.getAllCount(), bobj.getTupleNumberRelations(),
+                    bobj.getIndex_null_string(), bobj.getIndex_null_double(), bobj.getIndex_null_long());
 
 //            TIntArrayList _list1 = pBegin.getOperand1().getColumnLight().getValueIntList(unitSet.getPids()[pBegin.getIndex1()]);
 //            TIntArrayList _list2 = pBegin.getOperand2().getColumnLight().getValueIntList(unitSet.getPids()[pBegin.getIndex2()]);
@@ -2060,12 +2222,12 @@ public class ParallelRuleDiscoverySampling {
         for (Predicate p : this.allPredicates) {
             String k = p.getOperand1().getColumn().toStringData();
             if (!colsMap.containsKey(k)) {
-                ParsedColumnLight<?> col = new ParsedColumnLight<>(p.getOperand1().getColumn());
+                ParsedColumnLight<?> col = new ParsedColumnLight<>(p.getOperand1().getColumn(), p.getOperand1().getColumn().getType());
                 colsMap.put(k, col);
             }
             k = p.getOperand2().getColumn().toStringData();
             if (!colsMap.containsKey(k)) {
-                ParsedColumnLight<?> col = new ParsedColumnLight<>(p.getOperand2().getColumn());
+                ParsedColumnLight<?> col = new ParsedColumnLight<>(p.getOperand2().getColumn(), p.getOperand2().getColumn().getType());
                 colsMap.put(k, col);
             }
         }
@@ -2172,6 +2334,7 @@ public class ParallelRuleDiscoverySampling {
 //            logger.info("Transform rule {} with support {} and confidence {}", ree, supp, conf);
             // compute the interestingness score of each REE rule
             double score = this.computeInterestingness(ree);
+//            double score = 2 * supp * 1.0 / allCount / allCount + conf;
             ree.setInterestingnessScore(score);
             rees.add(ree);
         }
@@ -2181,12 +2344,84 @@ public class ParallelRuleDiscoverySampling {
         return rees;
     }
 
+    // check whether t1 only exists once and in the non-constant predicates. remove rules like "t0.A == t1.A ^ t0.B == 0 -> t0.D == 0"
+    private boolean isReasonableREE(DenialConstraint ree) {
+        boolean t0_non_constant = false;
+        boolean t1_non_constant = false;
+        boolean t0_constant = false;
+        boolean t1_constant = false;
+        for (Predicate p : ree.getPredicateSet()) {
+            if (p.isConstant()) {
+                if (p.getIndex1() == 0) {
+                    t0_constant = true;
+                }
+                if (p.getIndex1() == 1) {
+                    t1_constant = true;
+                }
+            } else {
+                t0_non_constant = true;
+                t1_non_constant = true;
+            }
+        }
+        Predicate rhs = ree.getRHS();
+        if (rhs.isConstant()) {
+            if (rhs.getIndex1() == 0) {
+                t0_constant = true;
+            }
+            if (rhs.getIndex1() == 1) {
+                t1_constant = true;
+            }
+        } else {
+            t0_non_constant = true;
+            t1_non_constant = true;
+        }
+        boolean valid = true;
+        if (ree.getRHS().isConstant()) {
+            valid = t0_constant && t1_constant && t0_non_constant && t1_non_constant;
+        }
+//        logger.info("{}, {}", ree.toStringOutput(), valid);
+        return valid;
+    }
+
+    // Remove rules like "t0.A == t1.A -> t0.B == c"
+    private boolean isMeaninglessREE(DenialConstraint ree) {
+        boolean isMeaningless = false;
+        if (ree.getPredicateSet().size() == 1) {
+            for (Predicate p_X : ree.getPredicateSet()) {
+                if (!p_X.isConstant() && ree.getRHS().isConstant()) {
+                    isMeaningless = true;
+                }
+            }
+        }
+        return isMeaningless;
+    }
+
+    private boolean checkUnreasonableREE_new(DenialConstraint ree) {
+        if (ree.getPredicateSet().size() == 2) {
+            for (Predicate p : ree.getPredicateSet()) {
+                if (!p.isConstant() && p.getOperand1().getColumnLight().getName().equals("research_interests")) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     /*
         store the current top-K interesting REEs
      */
     private void maintainTopKRules(DenialConstraintSet rees) {
         // original - use priorityQueue in java.util
         for (DenialConstraint ree : rees) {
+            if (!isReasonableREE(ree)) {
+                continue;
+            }
+            if (isMeaninglessREE(ree)) {
+                continue;
+            }
+//            if (!checkUnreasonableREE_new(ree)) { // for case study
+//                continue;
+//            }
             topKREEsTemp.add(ree);
         }
         // score the current top-K REEs and their corresponding interesting scores
@@ -2352,15 +2587,20 @@ public class ParallelRuleDiscoverySampling {
         }
         for (Message message : messages) {
             PredicateSet kkps = message.getCurrentSet(); //new PredicateSet();
-            for (Predicate validRHS : message.getValidRHSs()) {
-                PredicateSet temp = new PredicateSet(kkps);
-                temp.add(validRHS);
-                if (this.validXRHSs.containsKey(temp.getBitset())) {
-                    this.validXRHSs.get(temp.getBitset()).add(validRHS);
-                } else {
-                    ArrayList<Predicate> arr = new ArrayList<>();
-                    arr.add(validRHS);
-                    this.validXRHSs.put(temp.getBitset(), arr);
+            for (int i = 0; i < message.getValidRHSs().size(); i++) {
+                Predicate validRHS = message.getValidRHSs().get(i);
+                double conf = message.getConfidences().get(i);
+                // Lemma 3.2 in paper TANE
+                if (conf == 1.0) {
+                    PredicateSet temp = new PredicateSet(kkps);
+                    temp.add(validRHS);
+                    if (this.validXRHSs.containsKey(temp.getBitset())) {
+                        this.validXRHSs.get(temp.getBitset()).add(validRHS);
+                    } else {
+                        ArrayList<Predicate> arr = new ArrayList<>();
+                        arr.add(validRHS);
+                        this.validXRHSs.put(temp.getBitset(), arr);
+                    }
                 }
                 // add valid RHSs -- new ADDED, should be re-test and re-think !!!
                 if (this.validXRHSs.containsKey(kkps.getBitset())) {
@@ -3236,21 +3476,16 @@ public class ParallelRuleDiscoverySampling {
 
         this.prepareAllPredicatesMultiTuples();
 
-        List<Predicate> tmp_allPredicates = new ArrayList<>();
-        for (Predicate p : this.allPredicates) {
-            tmp_allPredicates.add(p);
-        }
-        // remove constant predicates of enumeration type for RHS
-        // removeEnumPredicates(tmp_allPredicates);
-        ArrayList<Predicate> applicationRHSs = this.applicationDrivenSelection(tmp_allPredicates);
+        ArrayList<Predicate> applicationRHSs = this.applicationDrivenSelection(this.allPredicates);
+
+        this.removeNonEnumPredicates(this.allPredicates);
+
+        this.removeEnumPredicates(this.allPredicates, this.allExistPredicates);
 
         // remove predicates that are irrelevant to RHSs
         if (this.maxTupleNum <= 2) {
             filterIrrelevantPredicates(applicationRHSs, this.allPredicates);
         }
-
-        // remove constant predicates of enumeration type for X
-        removeEnumPredicates(this.allPredicates, this.allExistPredicates);
 
         int cpsize = 0;
         int psize = 0;
@@ -3600,7 +3835,8 @@ public class ParallelRuleDiscoverySampling {
 
 
                 MultiTuplesRuleMiningOpt multiTuplesRuleMining = new MultiTuplesRuleMiningOpt(this.maxTupleNum,
-                        this.inputLight, this.support, this.confidence, maxOneRelationNum, allCount, tupleNumberRelations);
+                        this.inputLight, this.support, this.confidence, maxOneRelationNum, allCount, tupleNumberRelations,
+                        this.index_null_string, this.index_null_double, this.index_null_long);
 
                 ArrayList<Predicate> current = new ArrayList<>();
                 for (Predicate p : task.getCurrrent()) {
@@ -3706,10 +3942,8 @@ public class ParallelRuleDiscoverySampling {
                             List<Predicate> rhs = validConsRuleMap.get(lhs);
 
                             for (Predicate p : rhs) {
-                                if (unit.getRHSs().containsPredicate(p)) {
-                                    unit.getRHSs().remove(p);
-                                    logger.info(">>>> test cut: {}", p);
-                                }
+                                unit.getRHSs().remove(p);
+                                logger.info(">>>> test cut: {}", p);
                             }
                         }
                     }
@@ -3749,7 +3983,8 @@ public class ParallelRuleDiscoverySampling {
 
 
                 MultiTuplesRuleMiningOpt multiTuplesRuleMining = new MultiTuplesRuleMiningOpt(this.maxTupleNum,
-                        this.inputLight, this.support, this.confidence, maxOneRelationNum, allCount, tupleNumberRelations);
+                        this.inputLight, this.support, this.confidence, maxOneRelationNum, allCount, tupleNumberRelations,
+                        this.index_null_string, this.index_null_double, this.index_null_long);
 
                 List<Message> messages = multiTuplesRuleMining.validationMap1(unitSet, pBegin);
 

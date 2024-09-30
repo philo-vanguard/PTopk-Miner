@@ -89,6 +89,8 @@ public class RuleFinder {
             sparkClintConfMap.put("spark.network.timeout", "300");
 //            sparkClintConfMap.put("spark.executor.instances","4");
 
+            sparkClintConfMap.put("spark.driver.maxResultSize", "6G");
+
 //            // 64 env
 //            sparkClintConfMap.put("spark.driver.memory","8G");
 //            sparkClintConfMap.put("spark.executor.memory","4G");
@@ -120,7 +122,7 @@ public class RuleFinder {
 //            sparkLauncher.setConf("spark.executor.cores","1");
 ////            sparkLauncher.setConf("spark.executor.instances",numOfProcessors);
 //            sparkLauncher.setConf("spark.network.timeout", "360");
-            sparkLauncher.setConf("spark.executor.heartbeatInterval", "200");
+            sparkLauncher.setConf("spark.executor.heartbeatInterval", "100000");
 //            sparkLauncher.setConf("spark.executor.instances", "15");
 
             String path = "hdfs:///data/models/resources.zip";
@@ -250,8 +252,12 @@ public class RuleFinder {
         String interestingnessModelFile = argsMap.get("interestingnessModelFile");
         String tokenToIDFile = argsMap.get("tokenToIDFile");
         String filterRegressionFile = argsMap.get("filterRegressionFile");
+        String allPredicatesFile = argsMap.get("allPredicatesFile");
 
         String useConfHeuristic = argsMap.get("useConfHeuristic");
+
+        // for varying |X|
+        String MAX_X_LENGTH = argsMap.get("MAX_X_LENGTH");
 
         numOfProcessors = numOfProcessors_;
 
@@ -301,9 +307,12 @@ public class RuleFinder {
         otherParam.append("tokenToIDFile=" + tokenToIDFile + ';');
         otherParam.append("filterRegressionFile=" + filterRegressionFile + ';');
         otherParam.append("interestingnessModelFile=" + interestingnessModelFile + ';');
+        otherParam.append("allPredicatesFile=" + allPredicatesFile + ';');
 
         // use confidence to heuristically prune. If confidence of a node decrease, then do not expand this node
         otherParam.append("useConfHeuristic=" + useConfHeuristic + ';');
+
+        otherParam.append("MAX_X_LENGTH=" + MAX_X_LENGTH + ";"); // for varying |X|
 
 //        RuleDiscoverExecuteRequest req = RuleFindRequestMock.mockRuleFindReqest(dataset);
         RuleDiscoverExecuteRequest req = RuleFindRequestMock.mockRuleFindReqest(dataset, taskID);

@@ -623,13 +623,22 @@ public class EvidenceGenerateMain {
         String tokenToIDFile = RuntimeParamUtil.getRuntimeParam(spark.conf().get("runtimeParam"), "tokenToIDFile");
         String interestingnessModelFile = RuntimeParamUtil.getRuntimeParam(spark.conf().get("runtimeParam"), "interestingnessModelFile");
         String filterRegressionFile = RuntimeParamUtil.getRuntimeParam(spark.conf().get("runtimeParam"), "filterRegressionFile");
+        String allPredicatesFile = RuntimeParamUtil.getRuntimeParam(spark.conf().get("runtimeParam"), "allPredicatesFile");
 
         boolean useConfHeuristic = Boolean.valueOf(RuntimeParamUtil.getRuntimeParam(spark.conf().get("runtimeParam"), "useConfHeuristic"));
+
+        int MAX_X_LENGTH = Integer.valueOf(RuntimeParamUtil.getRuntimeParam(spark.conf().get("runtimeParam"), "MAX_X_LENGTH"));
 
         ParallelRuleDiscoverySampling parallelRuleDiscovery = new ParallelRuleDiscoverySampling(allPredicates, K, maxTupleNum,
                 support, (float)confidence, maxOneRelationNum, reeFinderEvidSet.getInput(), allCount,
                 w_supp, w_conf, w_diver, w_succ, w_sub, ifPrune, if_conf_filter, conf_filter_thr, if_cluster_workunits, filter_enum_number,
-                topKOption, tokenToIDFile, interestingnessModelFile, filterRegressionFile, hdfs, useConfHeuristic);
+                topKOption, tokenToIDFile, interestingnessModelFile, filterRegressionFile, allPredicatesFile, hdfs, useConfHeuristic,
+                reeFinderEvidSet.getIndex_null_string(), reeFinderEvidSet.getIndex_null_double(), reeFinderEvidSet.getIndex_null_long(),
+                MAX_X_LENGTH);
+
+        logger.info("#### allPredicates size: {}", allPredicates.size());
+
+        logger.info("#### allPredicates: {}", allPredicates);
 
 //            int ifOnlineTrainRL = Integer.valueOf(RuntimeParamUtil.getRuntimeParam(spark.conf().get("runtimeParam"),"ifOnlineTrainRL"));
 //            int ifOfflineTrainStage = Integer.valueOf(RuntimeParamUtil.getRuntimeParam(spark.conf().get("runtimeParam"),"ifOfflineTrainStage"));
@@ -682,7 +691,9 @@ public class EvidenceGenerateMain {
             if (ree == null) {
                 continue;
             }
-            timeInfo.append("Rule : ").append(ree.toString()).append(", supp: ").append(ree.getSupport()).append(", conf:").append(ree.getConfidence()).append(", score:").append(ree.getInterestingnessScore()).append("\n");
+            timeInfo.append("Rule : ").append(ree.toStringOutput()).append(", supp: ").append(ree.getSupport()).append(", conf:").append(ree.getConfidence()).append(", score:").append(ree.getInterestingnessScore()).append("\n");
+
+//            timeInfo.append("Rule : ").append(ree.toREEString()).append(", supp: ").append(ree.getSupport()).append(", conf:").append(ree.getConfidence()).append(", succ:").append(1.0 / ree.getPredicateSet().size()).append(", score:").append(ree.getInterestingnessScore()).append("\n");
         }
 
         String outTxtPath = PredicateConfig.MLS_TMP_HOME + taskId + "/rule_all/" +  outputResultFile; //"experiment_results";

@@ -1,7 +1,7 @@
 package sics.seiois.mlsserver.biz.der.mining.utils;
 
-import com.google.inject.internal.cglib.core.$ObjectSwitchCallback;
-import shapeless.ops.nat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sics.seiois.mlsserver.biz.der.metanome.denialconstraints.DenialConstraint;
 import sics.seiois.mlsserver.biz.der.metanome.predicates.Predicate;
 import sics.seiois.mlsserver.biz.der.metanome.predicates.sets.PredicateSet;
@@ -9,9 +9,7 @@ import sics.seiois.mlsserver.biz.der.mining.model.InterestingnessModel;
 import sics.seiois.mlsserver.biz.der.mining.model.MLPFilterRegressor;
 
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,6 +17,9 @@ import java.util.List;
 
 public class Interestingness implements Serializable {
     private static final long serialVersionUID = 123770436027404717L;
+
+    private static Logger logger = LoggerFactory.getLogger(Interestingness.class);
+
 //    private float support_ratio;
 //    private float confidence;
 //    private float diversity;
@@ -194,8 +195,10 @@ public class Interestingness implements Serializable {
         double[][] feature_vectors = new double[1][numPredicates * 2];
         // add P_sel
         for (Predicate p : X) {
+            logger.info("#### predicate: {}", p.toString().trim());
             feature_vectors[0][this.predicatesHashID.get(p.toString().trim())] = 1.0;
         }
+        logger.info("#### predicate: {}", p_0.toString().trim());
         feature_vectors[0][this.predicatesHashID.get(p_0.toString().trim())] = 1.0;
         // compute the UB
         return this.mlpFilterRegressor.run(feature_vectors);

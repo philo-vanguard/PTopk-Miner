@@ -318,9 +318,25 @@ public class RuleFindRequestMock {
 //        mockWanyiMutiTable(ruleRequest);
         switch (dataset) {
             case "aminer" :
-                String directory = "hdfs:///tmp/aminer/us_csv/";
+                String directory = "hdfs:///tmp/diversified_data/aminer/";
                 ruleRequest.setDimensionID(directory);
                 mockPaperAuthor(ruleRequest);
+                break;
+            case "aminer_sample" :
+                directory = "hdfs:///tmp/diversified_data/aminer_sample/";
+                ruleRequest.setDimensionID(directory);
+                mockPaperAuthor_sample(ruleRequest);
+                break;
+            case "aminer_statistical" :
+                directory = "hdfs:///tmp/diversified_data/statistical_test/aminer/";
+                ruleRequest.setDimensionID(directory);
+                mockPaperAuthor_statistical(ruleRequest, dataOption);
+                break;
+            case "aminer_merged_categorical" :
+                mockAminer_merged_categorical(ruleRequest);
+                break;
+            case "aminer_merged_categorical_sample" :
+                mockAminer_merged_categorical_sample(ruleRequest);
                 break;
             case "aminer_ml" :
                 directory = "hdfs:///tmp/aminer/us_csv/";
@@ -394,11 +410,26 @@ public class RuleFindRequestMock {
             case "adults":
                 mockAdults(ruleRequest);
                 break;
+            case "adults_sample":
+                mockAdults_sample(ruleRequest);
+                break;
+            case "adults_statistical":
+                mockAdults_statistical(ruleRequest, dataOption);
+                break;
+            case "adults_categorical":
+                mockAdultsCategorical(ruleRequest);
+                break;
             case "adults_ml":
                 mockAdults_ml(ruleRequest);
                 break;
             case "airports":
                 mockAirports(ruleRequest);
+                break;
+            case "airports_sample":
+                mockAirports_sample(ruleRequest);
+                break;
+            case "airports_statistical":
+                mockAirports_statistical(ruleRequest, dataOption);
                 break;
             case "airports_ml":
                 mockAirports_ml(ruleRequest);
@@ -408,6 +439,12 @@ public class RuleFindRequestMock {
                 break;
             case "hospital":
                 mockHospital(ruleRequest);
+                break;
+            case "hospital_sample":
+                mockHospital_sample(ruleRequest);
+                break;
+            case "hospital_statistical":
+                mockHospital_statistical(ruleRequest, dataOption);
                 break;
             case "hospital_ml":
                 mockHospital_ml(ruleRequest);
@@ -472,11 +509,32 @@ public class RuleFindRequestMock {
             case "ncvoter":
                 mockNcvoter(ruleRequest);
                 break;
+            case "ncvoter_sample":
+                mockNcvoter_sample(ruleRequest);
+                break;
+            case "ncvoter_0.2":
+                mockNcvoter(ruleRequest, 0.2);
+                break;
+            case "ncvoter_0.4":
+                mockNcvoter(ruleRequest, 0.4);
+                break;
+            case "ncvoter_0.6":
+                mockNcvoter(ruleRequest, 0.6);
+                break;
+            case "ncvoter_0.8":
+                mockNcvoter(ruleRequest, 0.8);
+                break;
+            case "ncvoter_1.0":
+                mockNcvoter(ruleRequest, 1.0);
+                break;
             case "ncvoterSampling":
                 mockSampleData(ruleRequest, dataOption);
                 break;
             case "inspection":
                 mockInspection(ruleRequest);
+                break;
+            case "inspection_sample":
+                mockInspection_sample(ruleRequest);
                 break;
             case "inspection_ml":
                 mockInspection_ml(ruleRequest);
@@ -832,10 +890,11 @@ public class RuleFindRequestMock {
     private static TableInfo getTax1000w() {
         TableInfo table1 = new TableInfo();
         table1.setTableName("tax1000w");
-        table1.setTableDataPath("hdfs:///tmp/datasets_discovery/tax_1000w.csv");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/tax_1000w_range.csv");
 
         String header = "fname,lname,gender,areacode,phone,city,state,zip,maritalstatus,haschild,salary,rate,singleexemp,marriedexemp,childexemp";
-        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,double,int,int,int";
+//        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,double,int,int,int";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
 
         constructTable(table1, header, type);
         return table1;
@@ -856,7 +915,7 @@ public class RuleFindRequestMock {
     private static TableInfo getTax200w() {
         TableInfo table1 = new TableInfo();
         table1.setTableName("tax200w");
-        table1.setTableDataPath("hdfs:///tmp/datasets_discovery/tax_200w.csv");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/tax_200w_range.csv");
 
         String header = "fname,lname,gender,areacode,phone,city,state,zip,maritalstatus,haschild,salary,rate,singleexemp,marriedexemp,childexemp";
 //        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,double,int,int,int";
@@ -879,10 +938,11 @@ public class RuleFindRequestMock {
     private static TableInfo getTax400w() {
         TableInfo table1 = new TableInfo();
         table1.setTableName("tax400w");
-        table1.setTableDataPath("hdfs:///tmp/datasets_discovery/tax_400w.csv");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/tax_400w_range.csv");
 
         String header = "fname,lname,gender,areacode,phone,city,state,zip,maritalstatus,haschild,salary,rate,singleexemp,marriedexemp,childexemp";
-        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,double,int,int,int";
+//        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,double,int,int,int";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
 
         constructTable(table1, header, type);
         return table1;
@@ -902,10 +962,11 @@ public class RuleFindRequestMock {
     private static TableInfo getTax600w() {
         TableInfo table1 = new TableInfo();
         table1.setTableName("tax600w");
-        table1.setTableDataPath("hdfs:///tmp/datasets_discovery/tax_600w.csv");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/tax_600w_range.csv");
 
         String header = "fname,lname,gender,areacode,phone,city,state,zip,maritalstatus,haschild,salary,rate,singleexemp,marriedexemp,childexemp";
-        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,double,int,int,int";
+//        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,double,int,int,int";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
 
         constructTable(table1, header, type);
         return table1;
@@ -925,10 +986,11 @@ public class RuleFindRequestMock {
     private static TableInfo getTax800w() {
         TableInfo table1 = new TableInfo();
         table1.setTableName("tax800w");
-        table1.setTableDataPath("hdfs:///tmp/datasets_discovery/tax_800w.csv");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/tax_800w_range.csv");
 
         String header = "fname,lname,gender,areacode,phone,city,state,zip,maritalstatus,haschild,salary,rate,singleexemp,marriedexemp,childexemp";
-        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,double,int,int,int";
+//        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,double,int,int,int";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
 
         constructTable(table1, header, type);
         return table1;
@@ -1599,7 +1661,7 @@ public class RuleFindRequestMock {
         //table1.setTableName("ncvoter_1001r_19c");
         //table1.setTableDataPath("hdfs:///tmp/datasets_discovery/ncvoter_1001r_19c.csv");
         table1.setTableName("ncvoter");
-        table1.setTableDataPath("hdfs:///tmp/datasets_discovery/ncvoter.csv");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/ncvoter.csv");
 
         // String header = "voter_id,voter_reg_num,name_prefix,first_name,middle_name,last_name,name_suffix,age,gender,race,ethnic,street_address,city,state,zip_code,full_phone_num,birth_place,register_date,download_month";
         // String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
@@ -1609,6 +1671,53 @@ public class RuleFindRequestMock {
 
 //        String header = "middle_name,last_name,age,street_address";
 //        String type = "varchar(20),varchar(20),varchar(20),varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
+
+    private static void mockNcvoter_sample(RuleDiscoverExecuteRequest ruleRequest) {
+        TableInfos tables = new TableInfos();
+        TableInfo chess = getNcvoter_sample();
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(chess);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+    }
+
+    private static TableInfo getNcvoter_sample() {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("ncvoter");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/ncvoter_sample.csv");
+
+        String header = "id,date,election_phase,way_of_voting,voting_intention,party,city_id,city,county_id,county_desc,city_id2,city_id3";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
+    private static void mockNcvoter(RuleDiscoverExecuteRequest ruleRequest, double sample_ratio) {
+        TableInfos tables = new TableInfos();
+        TableInfo chess = getNcvoter(sample_ratio);
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(chess);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+    }
+
+    private static TableInfo getNcvoter(double sample_ratio) {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("ncvoter");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/ncvoter_" + sample_ratio + ".csv");
+
+        String header = "id,date,election_phase,way_of_voting,voting_intention,party,city_id,city,county_id,county_desc,city_id2,city_id3";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
 
         constructTable(table1, header, type);
         return table1;
@@ -1680,7 +1789,31 @@ public class RuleFindRequestMock {
     private static TableInfo getInspection() {
         TableInfo table1 = new TableInfo();
         table1.setTableName("inspection");
-        table1.setTableDataPath("hdfs:///tmp/datasets_discovery/inspection.csv");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/inspection.csv");
+
+        String header = "Inspection_ID,DBA_Name,AKA_Name,License,Facility_Type,Risk,Address,City,State,Zip,Inspection_Date,Inspection_Type,Results,Violations,Latitude,Longitude,Location";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
+    private static void mockInspection_sample(RuleDiscoverExecuteRequest ruleRequest) {
+        TableInfos tables = new TableInfos();
+        TableInfo inspect = getInspection_sample();
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(inspect);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+
+    }
+
+    private static TableInfo getInspection_sample() {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("inspection");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/inspection_sample.csv");
 
         String header = "Inspection_ID,DBA_Name,AKA_Name,License,Facility_Type,Risk,Address,City,State,Zip,Inspection_Date,Inspection_Type,Results,Violations,Latitude,Longitude,Location";
         String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
@@ -1852,7 +1985,57 @@ public class RuleFindRequestMock {
     private static TableInfo getHospital() {
         TableInfo table1 = new TableInfo();
         table1.setTableName("hospital");
-        table1.setTableDataPath("hdfs:///tmp/datasets_discovery/hospital.csv");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/hospital.csv");
+
+        String header = "Provider_Number,Hospital_Name,City,State,ZIP_Code,County_Name,Phone_Number,Hospital_Type,Hospital_Owner,Emergency_Service,Condition,Measure_Code,Measure_Name,Sample,StateAvg";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
+    private static void mockHospital_sample(RuleDiscoverExecuteRequest ruleRequest) {
+        TableInfos tables = new TableInfos();
+        TableInfo nameBasics = getHospital_sample();
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(nameBasics);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+    }
+
+    private static TableInfo getHospital_sample() {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("hospital");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/hospital_sample.csv");
+
+        String header = "Provider_Number,Hospital_Name,City,State,ZIP_Code,County_Name,Phone_Number,Hospital_Type,Hospital_Owner,Emergency_Service,Condition,Measure_Code,Measure_Name,Sample,StateAvg";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
+    private static void mockHospital_statistical(RuleDiscoverExecuteRequest ruleRequest, String dataOption) {
+        TableInfos tables = new TableInfos();
+        TableInfo nameBasics = getHospital_statistical(dataOption);
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(nameBasics);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+    }
+
+    private static TableInfo getHospital_statistical(String dataOption) {
+        String[] info = dataOption.trim().split("__");
+        String sample_ratio = info[1];
+        String times = info[2];
+
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("hospital");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/statistical_test/hospital_" + sample_ratio + "_" + times + ".csv");
 
         String header = "Provider_Number,Hospital_Name,City,State,ZIP_Code,County_Name,Phone_Number,Hospital_Type,Hospital_Owner,Emergency_Service,Condition,Measure_Code,Measure_Name,Sample,StateAvg";
         String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
@@ -2001,7 +2184,7 @@ public class RuleFindRequestMock {
     private static TableInfo getAirports() {
         TableInfo table1 = new TableInfo();
         table1.setTableName("airports");
-        table1.setTableDataPath("hdfs:///tmp/datasets_discovery/airports.csv");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/airports.csv");
 
         String header = "id,ident,type,name,latitude_deg,longitude_deg,elevation_ft,continent,iso_country,iso_region,municipality,scheduled_service,gps_code,iata_code,local_code,home_link,wikipedia_link,keywords";
         String type = "varchar(20),varchar(20),varchar(20),varchar(20),double,double,int,varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
@@ -2009,6 +2192,59 @@ public class RuleFindRequestMock {
         constructTable(table1, header, type);
         return table1;
     }
+
+    private static void mockAirports_sample(RuleDiscoverExecuteRequest ruleRequest) {
+        TableInfos tables = new TableInfos();
+        TableInfo nameBasics = getAirports_sample();
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(nameBasics);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+
+    }
+
+    private static TableInfo getAirports_sample() {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("airports");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/airports_sample.csv");
+
+        String header = "id,ident,type,name,latitude_deg,longitude_deg,elevation_ft,continent,iso_country,iso_region,municipality,scheduled_service,gps_code,iata_code,local_code,home_link,wikipedia_link,keywords";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),double,double,int,varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
+    private static void mockAirports_statistical(RuleDiscoverExecuteRequest ruleRequest, String dataOption) {
+        TableInfos tables = new TableInfos();
+        TableInfo nameBasics = getAirports_statistical(dataOption);
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(nameBasics);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+    }
+
+    private static TableInfo getAirports_statistical(String dataOption) {
+        String[] info = dataOption.trim().split("__");
+        String sample_ratio = info[1];
+        String times = info[2];
+        logger.info("#### dataOption: {}, sampleRatio: {}, times: {}", dataOption, sample_ratio, times);
+
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("airports");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/statistical_test/airports_" + sample_ratio + "_" + times + ".csv");
+
+        String header = "id,ident,type,name,latitude_deg,longitude_deg,elevation_ft,continent,iso_country,iso_region,municipality,scheduled_service,gps_code,iata_code,local_code,home_link,wikipedia_link,keywords";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),double,double,int,varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
 
     private static void mockAirports_ml(RuleDiscoverExecuteRequest ruleRequest) {
         TableInfos tables = new TableInfos();
@@ -2175,8 +2411,8 @@ public class RuleFindRequestMock {
 
     private static TableInfo getAdults() {
         TableInfo table1 = new TableInfo();
-        table1.setTableName("adult");
-        table1.setTableDataPath("hdfs:///tmp/datasets_discovery/adult_data.csv");
+        table1.setTableName("adults");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/adults.csv");
 
         String header = "age,workclass,fnlwgt,education,education_num,marital_status,occupation,relationship,race,sex,capital_gain,capital_loss,hours_per_week,native_country,class";
 //        String type = "int,varchar(20),int,varchar(20),int,varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,int,int,varchar(20),varchar(20)";
@@ -2185,6 +2421,85 @@ public class RuleFindRequestMock {
 
         return table1;
     }
+
+    private static void mockAdults_sample(RuleDiscoverExecuteRequest ruleRequest) {
+        TableInfos tables = new TableInfos();
+        TableInfo nameBasics = getAdults_sample();
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(nameBasics);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+
+    }
+
+    private static TableInfo getAdults_sample() {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("adults");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/adults_sample.csv");
+
+        String header = "age,workclass,fnlwgt,education,education_num,marital_status,occupation,relationship,race,sex,capital_gain,capital_loss,hours_per_week,native_country,class";
+//        String type = "int,varchar(20),int,varchar(20),int,varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),int,int,int,varchar(20),varchar(20)";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+        constructTable(table1, header, type);
+
+        return table1;
+    }
+
+    private static void mockAdults_statistical(RuleDiscoverExecuteRequest ruleRequest, String dataOption) {
+        TableInfos tables = new TableInfos();
+        TableInfo nameBasics = getAdults_statistical(dataOption);
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(nameBasics);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+    }
+
+    private static TableInfo getAdults_statistical(String dataOption) {
+        String[] info = dataOption.trim().split("__");
+        String sample_ratio = info[1];
+        String times = info[2];
+        logger.info("#### dataOption: {}, sampleRatio: {}, times: {}", dataOption, sample_ratio, times);
+
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("adults");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/statistical_test/adults_" + sample_ratio + "_" + times + ".csv");
+
+        String header = "age,workclass,fnlwgt,education,education_num,marital_status,occupation,relationship,race,sex,capital_gain,capital_loss,hours_per_week,native_country,class";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+        constructTable(table1, header, type);
+
+        return table1;
+    }
+
+
+    private static void mockAdultsCategorical(RuleDiscoverExecuteRequest ruleRequest) {
+        TableInfos tables = new TableInfos();
+        TableInfo nameBasics = getAdultsCategorical();
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(nameBasics);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+
+    }
+
+    private static TableInfo getAdultsCategorical() {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("adults_categorical");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/adults_categorical.csv");
+
+        String header = "age,workclass,education,education_num,marital_status,occupation,relationship,race,sex,capital_gain,capital_loss,hours_per_week,native_country,class";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+        constructTable(table1, header, type);
+
+        return table1;
+    }
+
 
     private static void mockAdults_ml(RuleDiscoverExecuteRequest ruleRequest) {
         TableInfos tables = new TableInfos();
@@ -3126,6 +3441,74 @@ public class RuleFindRequestMock {
         return table1;
     }
 
+    private static void mockAminer_merged_categorical(RuleDiscoverExecuteRequest ruleRequest) {
+        TableInfos tables = new TableInfos();
+        TableInfo nameBasics = getAminer_merged_categorical();
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(nameBasics);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+    }
+
+    private static TableInfo getAminer_merged_categorical() {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("aminer");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/aminer_merged_categorical_new.csv");
+
+//        String header = "author_id,author_name,author_affiliations,published_papers,citations,h_index,p_index,p_index_with_unequal_a_index,research_interests,author2paper_id,paper_id,author_position,paper_title,author,paper_affiliations,year,venue";
+//        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+        String header = "author_id,author_name,author_affiliations,published_papers,citations,h_index,p_index,p_index_with_unequal_a_index,research_interests,published_papers__3,published_papers__5," +
+                "published_papers__10,published_papers__50,published_papers__100,citations__0,citations__5,citations__20,citations__50,citations__100,h_index_interval,p_index__0,p_index__05,p_index__1," +
+                "p_index__5,p_index__10,p_index__50,p_index_with_unequal_a_index__0,p_index_with_unequal_a_index__05,p_index_with_unequal_a_index__1,p_index_with_unequal_a_index__5,p_index_with_unequal_a_index__10," +
+                "p_index_with_unequal_a_index__50,author2paper_id,paper_id,author_position,author_position__1,author_position__3,author_position__5,author_position__10,paper_title,author,paper_affiliations,year," +
+                "venue,year__1950,year__1960,year__1970,year__1980,year__1990,year__2000,year__2010";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)," +
+                "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)," +
+                "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)," +
+                "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)," +
+                "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+
+        constructTable(table1, header, type);
+
+        return table1;
+    }
+
+    private static void mockAminer_merged_categorical_sample(RuleDiscoverExecuteRequest ruleRequest) {
+        TableInfos tables = new TableInfos();
+        TableInfo nameBasics = getAminer_merged_categorical_sample();
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(nameBasics);
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/" + ruleRequest.getTaskId() + "/result.ree");
+    }
+
+    private static TableInfo getAminer_merged_categorical_sample() {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("aminer");
+        table1.setTableDataPath("hdfs:///tmp/diversified_data/aminer_merged_categorical_new_sample.csv");
+
+//        String header = "author_id,author_name,author_affiliations,published_papers,citations,h_index,p_index,p_index_with_unequal_a_index,research_interests,author2paper_id,paper_id,author_position,paper_title,author,paper_affiliations,year,venue";
+//        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+
+        String header = "author_id,author_name,author_affiliations,published_papers,citations,h_index,p_index,p_index_with_unequal_a_index,research_interests,published_papers__3,published_papers__5," +
+                "published_papers__10,published_papers__50,published_papers__100,citations__0,citations__5,citations__20,citations__50,citations__100,h_index_interval,p_index__0,p_index__05,p_index__1," +
+                "p_index__5,p_index__10,p_index__50,p_index_with_unequal_a_index__0,p_index_with_unequal_a_index__05,p_index_with_unequal_a_index__1,p_index_with_unequal_a_index__5,p_index_with_unequal_a_index__10," +
+                "p_index_with_unequal_a_index__50,author2paper_id,paper_id,author_position,author_position__1,author_position__3,author_position__5,author_position__10,paper_title,author,paper_affiliations,year," +
+                "venue,year__1950,year__1960,year__1970,year__1980,year__1990,year__2000,year__2010";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)," +
+                "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)," +
+                "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)," +
+                "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)," +
+                "varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20),varchar(20)";
+
+        constructTable(table1, header, type);
+
+        return table1;
+    }
 
     private static void mockPaperAuthor(RuleDiscoverExecuteRequest ruleRequest){
         TableInfos tables = new TableInfos();
@@ -3167,6 +3550,40 @@ public class RuleFindRequestMock {
 //
 //        ruleRequest.setModelPredicats(models);
 
+    }
+
+    private static void mockPaperAuthor_sample(RuleDiscoverExecuteRequest ruleRequest){
+        TableInfos tables = new TableInfos();
+        TableInfo author = getAuthor2_sample(ruleRequest.getDimensionID());
+        TableInfo paper = getPaper2_sample(ruleRequest.getDimensionID());
+        TableInfo a2p = getA2P_sample(ruleRequest.getDimensionID());
+
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(author);
+        listable.add(paper);
+        listable.add(a2p);
+
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/"+ruleRequest.getTaskId() +"/result.ree");
+    }
+
+    private static void mockPaperAuthor_statistical(RuleDiscoverExecuteRequest ruleRequest, String dataOption){
+        TableInfos tables = new TableInfos();
+        TableInfo author = getAuthor2_statistical(ruleRequest.getDimensionID(), dataOption);
+        TableInfo paper = getPaper2_statistical(ruleRequest.getDimensionID(), dataOption);
+        TableInfo a2p = getA2P_statistical(ruleRequest.getDimensionID(), dataOption);
+
+        List<TableInfo> listable = new ArrayList<>();
+        listable.add(author);
+        listable.add(paper);
+        listable.add(a2p);
+
+        tables.setTableInfoList(listable);
+
+        ruleRequest.setTableInfos(tables);
+        ruleRequest.setResultStorePath("/tmp/rulefind/"+ruleRequest.getTaskId() +"/result.ree");
     }
 
     private static void mockPaperAuthor_ml(RuleDiscoverExecuteRequest ruleRequest){
@@ -3325,6 +3742,94 @@ public class RuleFindRequestMock {
 //        table1.setTableDataPath("hdfs:///tmp/small2/author2paper.csv");
 //        table1.setTableDataPath("hdfs:///tmp/aminer/csv/AMiner_Author2Paper.csv");
         table1.setTableDataPath(path + "/AMiner_Author2Paper.csv");
+
+        String header = "author2paper_id,author_id,paper_id,author_position";
+        String type = "varchar(20),varchar(20),varchar(20),DOUBLE";
+
+
+        String[] colNames = header.split(",");
+        String[] colTypes = type.split(",");
+
+        List<ColumnInfo> list1 = new ArrayList<>();
+
+        for (int i = 0; i < colNames.length; i++) {
+            ColumnInfo c1 = new ColumnInfo();
+            c1.setColumnName(colNames[i]);
+            c1.setColumnType(colTypes[i]);
+            if (c1.getColumnName().equals("author_id")) {
+                List<FKMsg> fkMsgList = new ArrayList<>();
+                FKMsg fkMsg = new FKMsg();
+                fkMsg.setFkColumnName("author_id");
+                fkMsg.setFkTableName("AMiner_Author");
+                fkMsgList.add(fkMsg);
+                c1.setFkMsgList(fkMsgList);
+            }
+            if (c1.getColumnName().equals("paper_id")) {
+                List<FKMsg> fkMsgList = new ArrayList<>();
+                FKMsg fkMsg = new FKMsg();
+                fkMsg.setFkColumnName("paper_id");
+                fkMsg.setFkTableName("AMiner_Paper");
+                fkMsgList.add(fkMsg);
+                c1.setFkMsgList(fkMsgList);
+            }
+            list1.add(c1);
+        }
+        table1.setColumnList(list1);
+
+//        constructTable(table1, header, type);
+        return table1;
+    }
+
+    private static TableInfo getA2P_sample(String path) {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("AMiner_Author2Paper");
+        table1.setTableDataPath(path + "/AMiner_Author2Paper_sample.csv");
+
+        String header = "author2paper_id,author_id,paper_id,author_position";
+        String type = "varchar(20),varchar(20),varchar(20),DOUBLE";
+
+
+        String[] colNames = header.split(",");
+        String[] colTypes = type.split(",");
+
+        List<ColumnInfo> list1 = new ArrayList<>();
+
+        for (int i = 0; i < colNames.length; i++) {
+            ColumnInfo c1 = new ColumnInfo();
+            c1.setColumnName(colNames[i]);
+            c1.setColumnType(colTypes[i]);
+            if (c1.getColumnName().equals("author_id")) {
+                List<FKMsg> fkMsgList = new ArrayList<>();
+                FKMsg fkMsg = new FKMsg();
+                fkMsg.setFkColumnName("author_id");
+                fkMsg.setFkTableName("AMiner_Author");
+                fkMsgList.add(fkMsg);
+                c1.setFkMsgList(fkMsgList);
+            }
+            if (c1.getColumnName().equals("paper_id")) {
+                List<FKMsg> fkMsgList = new ArrayList<>();
+                FKMsg fkMsg = new FKMsg();
+                fkMsg.setFkColumnName("paper_id");
+                fkMsg.setFkTableName("AMiner_Paper");
+                fkMsgList.add(fkMsg);
+                c1.setFkMsgList(fkMsgList);
+            }
+            list1.add(c1);
+        }
+        table1.setColumnList(list1);
+
+        return table1;
+    }
+
+    private static TableInfo getA2P_statistical(String path, String dataOption) {
+        String[] info = dataOption.trim().split("__");
+        String sample_ratio = info[1];
+        String times = info[2];
+        logger.info("#### dataOption: {}, sampleRatio: {}, times: {}", dataOption, sample_ratio, times);
+
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("AMiner_Author2Paper");
+        table1.setTableDataPath(path + "/AMiner_Author2Paper_" + sample_ratio + "_" + times + ".csv");
 
         String header = "author2paper_id,author_id,paper_id,author_position";
         String type = "varchar(20),varchar(20),varchar(20),DOUBLE";
@@ -3557,6 +4062,36 @@ public class RuleFindRequestMock {
         return table1;
     }
 
+    private static TableInfo getPaper2_sample(String path) {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("AMiner_Paper");
+        table1.setTableDataPath(path + "/AMiner_Paper_sample.csv");
+
+        String header = "paper_id,paper_title,author,paper_affiliations,year,venue";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),DOUBLE,varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
+    private static TableInfo getPaper2_statistical(String path, String dataOption) {
+        String[] info = dataOption.trim().split("__");
+        String sample_ratio = info[1];
+        String times = info[2];
+        logger.info("#### dataOption: {}, sampleRatio: {}, times: {}", dataOption, sample_ratio, times);
+
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("AMiner_Paper");
+        table1.setTableDataPath(path + "/AMiner_Paper_" + sample_ratio + "_" + times + ".csv");
+
+        String header = "paper_id,paper_title,author,paper_affiliations,year,venue";
+        String type = "varchar(20),varchar(20),varchar(20),varchar(20),DOUBLE,varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
+
     private static TableInfo getPaper2_ml(String path) {
         TableInfo table1 = new TableInfo();
         table1.setTableName("AMiner_Paper_ml");
@@ -3665,6 +4200,35 @@ public class RuleFindRequestMock {
 //        table1.setTableDataPath("hdfs:///tmp/small2/author.csv");
 //        table1.setTableDataPath("hdfs:///tmp/aminer/csv/AMiner_Author.csv");
         table1.setTableDataPath(path + "/AMiner_Author.csv");
+
+        String header = "author_id,author_name,author_affiliations,published_papers,citations,h_index,p_index,p_index_with_unequal_a_index,research_interests";
+        String type = "varchar(20),varchar(20),varchar(20),DOUBLE,DOUBLE,DOUBLE,DOUBLE,DOUBLE,varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
+    private static TableInfo getAuthor2_sample(String path) {
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("AMiner_Author");
+        table1.setTableDataPath(path + "/AMiner_Author_sample.csv");
+
+        String header = "author_id,author_name,author_affiliations,published_papers,citations,h_index,p_index,p_index_with_unequal_a_index,research_interests";
+        String type = "varchar(20),varchar(20),varchar(20),DOUBLE,DOUBLE,DOUBLE,DOUBLE,DOUBLE,varchar(20)";
+
+        constructTable(table1, header, type);
+        return table1;
+    }
+
+    private static TableInfo getAuthor2_statistical(String path, String dataOption) {
+        String[] info = dataOption.trim().split("__");
+        String sample_ratio = info[1];
+        String times = info[2];
+        logger.info("#### dataOption: {}, sampleRatio: {}, times: {}", dataOption, sample_ratio, times);
+
+        TableInfo table1 = new TableInfo();
+        table1.setTableName("AMiner_Author");
+        table1.setTableDataPath(path + "/AMiner_Author_" + sample_ratio + "_" + times + ".csv");
 
         String header = "author_id,author_name,author_affiliations,published_papers,citations,h_index,p_index,p_index_with_unequal_a_index,research_interests";
         String type = "varchar(20),varchar(20),varchar(20),DOUBLE,DOUBLE,DOUBLE,DOUBLE,DOUBLE,varchar(20)";
