@@ -8,9 +8,9 @@ For more details, see our paper:
 
 <br>
 
-```
-Please note that, the original code in the 'master' branch, intended to replicate the experimental results reported in our paper, contained several bugs. We have addressed these issues and implemented the necessary fixes in the 'latest' branch.
-```
+
+&#x1F308; Please note that, the original code in the 'master' branch, intended to replicate the experimental results reported in our paper, contained several bugs. We have addressed these issues and implemented the necessary fixes in the 'latest' branch.
+
 
 The source codes mainly include two parts:
 1. *REEs_model*: bi-criteria model;  
