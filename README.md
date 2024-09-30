@@ -1,4 +1,4 @@
-# REE Discovery
+# Top-k REE Discovery
 This paper studies two questions about rule discovery. Can we characterize the usefulness of rules using quantitative criteria? How can we discover rules using those criteria? As a testbed, we consider entity enhancing rules (REEs), which subsume common association rules and data quality rules as special cases. We characterize REEs using a bi-criteria model, with both objective measures such as support and confidence, and subjective measures for the user’s needs; we learn the subjective measure and the weight vectors via active learning. Based on the bi-criteria model, we develop a top-𝑘 algorithm to discover top-ranked REEs, and an any-time algorithm for successive discovery via lazy evaluation. We parallelize these algorithms such that they guarantee to reduce runtime when more processors are used.
 
 
