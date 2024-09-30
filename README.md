@@ -3,13 +3,13 @@ This paper studies two questions about rule discovery. Can we characterize the u
 
 For more details, see our paper:
 
-Wenfei Fan, Ziyan Han, Yaoshu Wang, and Min Xie. [*Discovering Top-k Rules using Subjective and Objective Criteria*](https://philo-vanguard.github.io/files/papers/Rule-Discovery-Top-k-SIGMOD23.pdf). In SIGMOD (2023). ACM.
-
+Wenfei Fan, Ziyan Han, Yaoshu Wang, and Min Xie. *Discovering Top-k Rules using Subjective and Objective Criteria*. In SIGMOD (2023). ACM. [(Download)](https://philo-vanguard.github.io/files/papers/Rule-Discovery-Top-k-SIGMOD23.pdf)
 
 
 The source codes mainly include two parts:
 1. *REEs_model*: bi-criteria model;  
 1. *mls-server*: top-k rule discovery;  
+
 
 ## Installation
 Before building the projects, the following prerequisites need to be installed:
